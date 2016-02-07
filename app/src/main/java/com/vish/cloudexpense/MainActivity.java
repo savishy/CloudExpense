@@ -32,8 +32,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -42,11 +45,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * References:
+ * http://stackoverflow.com/questions/5070830/populating-a-listview-using-arraylist
  * https://developers.google.com/apps-script/guides/rest/quickstart/android
  */
 public class MainActivity extends Activity {
+    private static final String TAG = "MainActivity";
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
+    private ListView expenseCategories;
+    private ArrayAdapter<String> arrayAdapter;
+    private List<String> arrayList = new ArrayList<String>();
     ProgressDialog mProgress;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -68,29 +77,46 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
+//        LinearLayout activityLayout = new LinearLayout(this);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        activityLayout.setLayoutParams(lp);
+//        activityLayout.setOrientation(LinearLayout.VERTICAL);
+//        activityLayout.setPadding(16, 16, 16, 16);
 
         ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        //this is the sample code from google.
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
         mOutputText.setVerticalScrollBarEnabled(true);
         mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        activityLayout.addView(mOutputText);
+//        activityLayout.addView(mOutputText);
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Apps Script Execution API ...");
 
-        setContentView(activityLayout);
+//        setContentView(activityLayout);
+
+        setContentView(R.layout.activity_main);
+
+        /**
+         * LIST VIEW CONTAINING QUERY RESULTS
+         */
+
+        //seed data
+        arrayList.add("Hello World");
+        expenseCategories = (ListView) findViewById(R.id.expenseCategoriesListView);
+
+        arrayAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,
+                arrayList);
+        expenseCategories.setAdapter(arrayAdapter);
+
 
         // Initialize credentials and service object.
         SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
@@ -389,6 +415,13 @@ public class MainActivity extends Activity {
             } else {
                 output.add(0, "Data retrieved using the Google Apps Script Execution API:");
                 mOutputText.setText(TextUtils.join("\n", output));
+
+                //update arrayList
+                arrayList.clear();
+                arrayList.addAll(output);
+                //notify the ListView Adapter that data has changed.
+                Log.d(TAG,Arrays.toString(arrayList.toArray(new String[]{""})));
+                arrayAdapter.notifyDataSetChanged();
             }
         }
 
