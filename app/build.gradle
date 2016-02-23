@@ -17,6 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    //use custom debug keystore to retain signing key
+    //http://stackoverflow.com/questions/17189076/what-is-the-equivalent-of-eclipse-custom-debug-keystore-in-android-studio
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+        }
+    }
 }
 
 dependencies {

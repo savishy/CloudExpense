@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.vish.cloudexpense.AddExpenseActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Add an Expense"
+        android:id="@+id/pageTitle"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/expenseAmount"
+        android:text="Amount"
+        android:layout_below="@+id/pageTitle"
+        android:layout_toEndOf="@+id/datePicker" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:id="@+id/listView"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Choose Category:"
+        android:id="@+id/textView3"
+        android:layout_above="@+id/listView" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/expenseDescription"
+        android:text="Name this Expense"
+        android:layout_below="@+id/expenseAmount"
+        android:layout_alignParentEnd="true" />
+
+    <DatePicker
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:id="@+id/datePicker"
+        android:layout_alignTop="@+id/expenseAmount"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/expenseDescription" />
+</RelativeLayout>

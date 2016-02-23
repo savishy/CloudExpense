@@ -51,8 +51,6 @@ public class GoogleApiFragment extends Fragment {
 
     private static final String TAG = "GoogleApiFragment";
     GoogleAccountCredential mCredential;
-    private List<String> arrayList = new ArrayList<String>();
-    private ArrayAdapter<String> arrayAdapter;
 
     ProgressDialog mProgress;
 
@@ -84,6 +82,13 @@ public class GoogleApiFragment extends Fragment {
                 .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
     }
 
+    /**
+     * No UI for this Fragment.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,8 +97,9 @@ public class GoogleApiFragment extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
-        Common.showSimpleDialog(getActivity(), "onActivityCreated", "Activity has been created");
+//        Common.showSimpleDialog(getActivity(), "onActivityCreated", "Fragment has been created");
     }
 
     /**
@@ -109,6 +115,7 @@ public class GoogleApiFragment extends Fragment {
     @Override
     public void onActivityResult(
             int requestCode, int resultCode, Intent data) {
+        Log.d(TAG,"onActivityResult: " + resultCode);
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
@@ -306,7 +313,7 @@ public class GoogleApiFragment extends Fragment {
             // under Publish > Deploy as API executable.
             String scriptId = "MM4uLUw9bV6-vUZuxqHcH-XvYgb_i6vya";
 
-            List<String> folderList = new ArrayList<String>();
+            List<String> expenseList = new ArrayList<String>();
 
             // Create an execution request object.
             //Here we will set the Google Apps Script function to execute.
@@ -328,16 +335,16 @@ public class GoogleApiFragment extends Fragment {
                 // function returns. Here, the function returns an Apps
                 // Script Object with String keys and values, so must be
                 // cast into a Java Map (folderSet).
-                Map<String, String> folderSet =
+                Map<String, String> expenseMap =
                         (Map<String, String>)(op.getResponse().get("result"));
 
-                for (String id: folderSet.keySet()) {
-                    folderList.add(
-                            String.format("%s (%s)", folderSet.get(id), id));
+                for (String id: expenseMap.keySet()) {
+                    expenseList.add(
+                            String.format("%s (%s)", expenseMap.get(id), id));
                 }
             }
-
-            return folderList;
+            Log.d(TAG,"getDataFromApi: " + expenseList.toString());
+            return expenseList;
         }
 
         /**
@@ -377,13 +384,13 @@ public class GoogleApiFragment extends Fragment {
                 }
             }
             sb.append("\n");
+            Log.w(TAG,"getScriptError: " + sb.toString());
             return sb.toString();
         }
 
 
         @Override
         protected void onPreExecute() {
-            ((MainActivity)getActivity()).setOutputText("");
             mProgress.show();
         }
 
@@ -396,13 +403,19 @@ public class GoogleApiFragment extends Fragment {
                 output.add(0, "Data retrieved using the Google Apps Script Execution API:");
                 ((MainActivity)getActivity()).setOutputText(TextUtils.join("\n", output));
 
-                //update arrayList
-                arrayList.clear();
-                arrayList.addAll(output);
+                //update arrayList in main activity
+                ((MainActivity) getActivity()).arrayList.clear();
+                ((MainActivity) getActivity()).arrayList.addAll(output);
                 //notify the ListView Adapter that data has changed.
-                Log.d(TAG, Arrays.toString(arrayList.toArray(new String[]{""})));
-                arrayAdapter.notifyDataSetChanged();
+                Log.d(TAG, Arrays.toString((
+                        (MainActivity) getActivity())
+                        .arrayList.toArray(new String[]{""})));
+                ((MainActivity) getActivity()).arrayAdapter.notifyDataSetChanged();
             }
+
+
+            //return to activity that called this.
+            startActivity(getActivity().getIntent());
         }
 
         @Override
