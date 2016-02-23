@@ -1,24 +1,23 @@
 package com.vish.cloudexpense;
 
+import android.accounts.AccountManager;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.common.ConnectionResult;
@@ -52,10 +51,9 @@ public class GoogleApiFragment extends Fragment {
 
     private static final String TAG = "GoogleApiFragment";
     GoogleAccountCredential mCredential;
-    private TextView mOutputText;
-    private ListView expenseCategories;
-    private ArrayAdapter<String> arrayAdapter;
     private List<String> arrayList = new ArrayList<String>();
+    private ArrayAdapter<String> arrayAdapter;
+
     ProgressDialog mProgress;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -71,6 +69,7 @@ public class GoogleApiFragment extends Fragment {
     };
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate");
         super.onCreate(savedInstanceState);
 
         mProgress = new ProgressDialog(getActivity());
@@ -97,13 +96,62 @@ public class GoogleApiFragment extends Fragment {
         Common.showSimpleDialog(getActivity(), "onActivityCreated", "Activity has been created");
     }
 
+    /**
+     * Called when an activity launched here (specifically, AccountPicker
+     * and authorization) exits, giving you the requestCode you started it with,
+     * the resultCode it returned, and any additional data from it.
+     * @param requestCode code indicating which activity result is incoming.
+     * @param resultCode code indicating the result of the incoming
+     *     activity result.
+     * @param data Intent (containing result data) returned by incoming
+     *     activity result.
+     */
+    @Override
+    public void onActivityResult(
+            int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode != getActivity().RESULT_OK) {
+                    isGooglePlayServicesAvailable();
+                }
+                break;
+            case REQUEST_ACCOUNT_PICKER:
+                if (resultCode == getActivity().RESULT_OK && data != null &&
+                        data.getExtras() != null) {
+                    String accountName =
+                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        Log.d(TAG, "selected account:" + accountName);
+                        mCredential.setSelectedAccountName(accountName);
+                        SharedPreferences settings =
+                                getActivity().getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.apply();
+                    }
+                } else if (resultCode == getActivity().RESULT_CANCELED) {
+                    ((MainActivity) getActivity()).setOutputText("Account unspecified");
+                }
+                break;
+            case REQUEST_AUTHORIZATION:
+                if (resultCode != getActivity().RESULT_OK) {
+                    chooseAccount();
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         if (isGooglePlayServicesAvailable()) {
             refreshResults();
         } else {
-            mOutputText.setText("Google Play Services required: " +
+
+            ((MainActivity)getActivity()).setOutputText("Google Play Services required: " +
                     "after installing, close and relaunch this app.");
         }
     }
@@ -168,6 +216,13 @@ public class GoogleApiFragment extends Fragment {
     /**
      * Starts an activity in Google Play Services so the user can pick an
      * account.
+     * <p>
+     *     This method calls {@link #startActivityForResult(Intent, int)} to launch the
+     *     Google account selection activity.<br>
+     *     The selected account is processed in the
+     *     {@link #onActivityResult(int, int, Intent)}
+     *     method. See http://developer.android.com/training/basics/intents/result.html
+     * </p>
      */
     private void chooseAccount() {
         startActivityForResult(
@@ -180,13 +235,15 @@ public class GoogleApiFragment extends Fragment {
      * user can pick an account.
      */
     private void refreshResults() {
+        Log.d(TAG,"refreshResults");
         if (mCredential.getSelectedAccountName() == null) {
+            Log.d(TAG,"asking for Google credentials");
             chooseAccount();
         } else {
             if (isDeviceOnline()) {
                 new MakeRequestTask(mCredential).execute();
             } else {
-                mOutputText.setText("No network connection available.");
+                ((MainActivity) getActivity()).setOutputText("No network connection available");
             }
         }
     }
@@ -326,7 +383,7 @@ public class GoogleApiFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            mOutputText.setText("");
+            ((MainActivity)getActivity()).setOutputText("");
             mProgress.show();
         }
 
@@ -334,10 +391,10 @@ public class GoogleApiFragment extends Fragment {
         protected void onPostExecute(List<String> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
+                ((MainActivity)getActivity()).setOutputText("No results returned.");
             } else {
                 output.add(0, "Data retrieved using the Google Apps Script Execution API:");
-                mOutputText.setText(TextUtils.join("\n", output));
+                ((MainActivity)getActivity()).setOutputText(TextUtils.join("\n", output));
 
                 //update arrayList
                 arrayList.clear();
@@ -361,11 +418,11 @@ public class GoogleApiFragment extends Fragment {
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             MainActivity2.REQUEST_AUTHORIZATION);
                 } else {
-                    mOutputText.setText("The following error occurred:\n"
+                    ((MainActivity)getActivity()).setOutputText("The following error occurred:\n"
                             + mLastError.getMessage());
                 }
             } else {
-                mOutputText.setText("Request cancelled.");
+                ((MainActivity)getActivity()).setOutputText("Request cancelled.");
             }
         }
     }

@@ -53,13 +53,36 @@ import java.util.List;
  */
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
+    private TextView mOutputText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //TODO this is just a simple TextView with dynamic layout.
+        //this is the sample code from google.
+        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        mOutputText = new TextView(this);
+        mOutputText.setLayoutParams(tlp);
+        mOutputText.setPadding(16, 16, 16, 16);
+        mOutputText.setVerticalScrollBarEnabled(true);
+        mOutputText.setMovementMethod(new ScrollingMovementMethod());
+
+
+        Log.d(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         GoogleApiFragment googleApiFragment = new GoogleApiFragment();
         fragmentTransaction.add(googleApiFragment,"GoogleApiFragment").commit();
+    }
+
+    /**
+     * This method sets {@link #mOutputText}. It is used as a way for
+     * {@link GoogleApiFragment} to update TextViews etc in this activity.
+     * @param text
+     */
+    protected void setOutputText(String text) {
+        mOutputText.setText(text);
     }
 }
