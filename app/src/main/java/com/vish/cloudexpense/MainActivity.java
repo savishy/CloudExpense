@@ -64,7 +64,8 @@ public class MainActivity extends Activity {
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GoogleApiFragment googleApiFragment = new GoogleApiFragment();
+        GoogleApiFragment googleApiFragment = GoogleApiFragment.newInstance
+                (GoogleApiFragment.apiMethods.GET_EXPENSES_BY_CATEGORY);
         fragmentTransaction.add(googleApiFragment,"GoogleApiFragment").commit();
     }
 

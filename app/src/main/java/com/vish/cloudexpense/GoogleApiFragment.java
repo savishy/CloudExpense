@@ -49,6 +49,49 @@ import java.util.Map;
  */
 public class GoogleApiFragment extends Fragment {
 
+    /**
+     * List of supported Google API Methods.
+     */
+    public static enum apiMethods {
+        ADD_EXPENSE("addExpense",0),
+        GET_EXPENSE_CATEGORIES("getAllExpenseCategories",1),
+        GET_CUMULATIVE_EXPENSES("getCumulativeExpenses",2),
+        GET_EXPENSES_BY_CATEGORY("getExpensesByCategory",3),
+        ;
+
+        private String methodName;
+        private int methodIndex;
+
+        apiMethods(String name, int index) {
+            this.methodName = name;
+            this.methodIndex = index;
+        }
+        public String getMethodName() {
+            return methodName;
+        }
+        public int getMethodIndex() {
+            return methodIndex;
+        }
+        public apiMethods getMethodNameByIndex(int index) {
+            for (apiMethods a : apiMethods.values()) {
+                if (a.getMethodIndex() == index)
+                    return a;
+            }
+            return null;
+        }
+    }
+    public apiMethods apiMethod;
+
+    public static GoogleApiFragment newInstance(apiMethods method) {
+        GoogleApiFragment f = new GoogleApiFragment();
+        f.apiMethod = method;
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("methodIndex", method.getMethodIndex());
+        f.setArguments(args);
+        return f;
+    }
+
     private static final String TAG = "GoogleApiFragment";
     GoogleAccountCredential mCredential;
 
@@ -313,12 +356,19 @@ public class GoogleApiFragment extends Fragment {
             // under Publish > Deploy as API executable.
             String scriptId = "MM4uLUw9bV6-vUZuxqHcH-XvYgb_i6vya";
 
-            List<String> expenseList = new ArrayList<String>();
+            List<String> responseList = new ArrayList<String>();
+
+            //get the method to execute.
+            if (apiMethod == null) {
+                throw new IOException ("API Method object is null!");
+            }
+            String method = apiMethod.getMethodName();
+            Log.d(TAG,"Execute remote: " + method);
 
             // Create an execution request object.
             //Here we will set the Google Apps Script function to execute.
             ExecutionRequest request = new ExecutionRequest()
-                    .setFunction("getExpensesByCategory");
+                    .setFunction(method);
 
             // Make the request.
             Operation op =
@@ -335,16 +385,16 @@ public class GoogleApiFragment extends Fragment {
                 // function returns. Here, the function returns an Apps
                 // Script Object with String keys and values, so must be
                 // cast into a Java Map (folderSet).
-                Map<String, String> expenseMap =
+                Map<String, String> responseMap =
                         (Map<String, String>)(op.getResponse().get("result"));
 
-                for (String id: expenseMap.keySet()) {
-                    expenseList.add(
-                            String.format("%s (%s)", expenseMap.get(id), id));
+                for (String id: responseMap.keySet()) {
+                    responseList.add(
+                            String.format("%s (%s)", responseMap.get(id), id));
                 }
             }
-            Log.d(TAG,"getDataFromApi: " + expenseList.toString());
-            return expenseList;
+            Log.d(TAG,"getDataFromApi: " + responseList.toString());
+            return responseList;
         }
 
         /**
