@@ -26,12 +26,13 @@
         android:id="@+id/expenseAmount"
         android:text="Amount"
         android:layout_below="@+id/pageTitle"
-        android:layout_toEndOf="@+id/datePicker" />
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/datePickerButton" />
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="160dp"
-        android:id="@+id/listView"
+        android:id="@+id/addExpenseCategoryListView"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true" />
 
@@ -41,7 +42,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Choose Category:"
         android:id="@+id/textView3"
-        android:layout_above="@+id/listView" />
+        android:layout_above="@+id/addExpenseCategoryListView" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -49,13 +50,20 @@
         android:id="@+id/expenseDescription"
         android:text="Name this Expense"
         android:layout_below="@+id/expenseAmount"
-        android:layout_alignParentEnd="true" />
-
-    <DatePicker
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:id="@+id/datePicker"
-        android:layout_alignTop="@+id/expenseAmount"
         android:layout_alignParentStart="true"
-        android:layout_alignBottom="@+id/expenseDescription" />
+        android:layout_toStartOf="@+id/datePickerButton" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Date"
+        android:id="@+id/datePickerButton"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/pageTitle"
+        android:layout_alignBottom="@+id/expenseDescription"
+        android:onClick="showDatePickerDialog"
+        />
+
+
 </RelativeLayout>
