@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -67,18 +68,11 @@ public class MainActivity extends Activity {
         fragmentTransaction.add(googleApiFragment,"GoogleApiFragment").commit();
     }
 
-    /**
-     * This is simply a demo for
-     * {@link GoogleApiFragment} to communicate with this activity.
-     * @param text
-     */
-    protected void setOutputText(String text) {
-        Common.showSimpleDialog(this, "Response", text);
-//        mOutputText.setText(text);
-    }
 
-    protected void startAddExpense() {
+
+    public void startAddExpense(View view) {
         Intent intent = new Intent(this,AddExpenseActivity.class);
         startActivity(intent);
+
     }
 }

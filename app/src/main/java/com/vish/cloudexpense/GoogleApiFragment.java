@@ -138,7 +138,7 @@ public class GoogleApiFragment extends Fragment {
                         editor.apply();
                     }
                 } else if (resultCode == getActivity().RESULT_CANCELED) {
-                    ((MainActivity) getActivity()).setOutputText("Account unspecified");
+                    Common.showSimpleDialog(getActivity(), "Response", "Account unspecified");
                 }
                 break;
             case REQUEST_AUTHORIZATION:
@@ -158,7 +158,7 @@ public class GoogleApiFragment extends Fragment {
             refreshResults();
         } else {
 
-            ((MainActivity)getActivity()).setOutputText("Google Play Services required: " +
+            Common.showSimpleDialog(getActivity(), "Response", "Google Play Services required: " +
                     "after installing, close and relaunch this app.");
         }
     }
@@ -250,7 +250,7 @@ public class GoogleApiFragment extends Fragment {
             if (isDeviceOnline()) {
                 new MakeRequestTask(mCredential).execute();
             } else {
-                ((MainActivity) getActivity()).setOutputText("No network connection available");
+                Common.showSimpleDialog(getActivity(), "Response", "No network connection available");
             }
         }
     }
@@ -398,10 +398,10 @@ public class GoogleApiFragment extends Fragment {
         protected void onPostExecute(List<String> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
-                ((MainActivity)getActivity()).setOutputText("No results returned.");
+                Common.showSimpleDialog(getActivity(), "Response", "No results returned.");
             } else {
                 output.add(0, "Data retrieved using the Google Apps Script Execution API:");
-                ((MainActivity)getActivity()).setOutputText(TextUtils.join("\n", output));
+                Common.showSimpleDialog(getActivity(), "Response", TextUtils.join("\n", output));
 
                 //update arrayList in main activity
                 ((MainActivity) getActivity()).arrayList.clear();
@@ -429,13 +429,13 @@ public class GoogleApiFragment extends Fragment {
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity2.REQUEST_AUTHORIZATION);
+                            REQUEST_AUTHORIZATION);
                 } else {
-                    ((MainActivity)getActivity()).setOutputText("The following error occurred:\n"
+                    Common.showSimpleDialog(getActivity(), "Response", "The following error occurred:\n"
                             + mLastError.getMessage());
                 }
             } else {
-                ((MainActivity)getActivity()).setOutputText("Request cancelled.");
+                Common.showSimpleDialog(getActivity(), "Response", "Request cancelled.");
             }
         }
     }
