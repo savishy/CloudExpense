@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ import java.util.List;
  * http://stackoverflow.com/questions/5070830/populating-a-listview-using-arraylist
  * https://developers.google.com/apps-script/guides/rest/quickstart/android
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements GoogleApiFragment.ApiCallFinishListener {
     private static final String TAG = "MainActivity";
 //    private TextView mOutputText;
     private ListView expenseCategories;
@@ -74,6 +75,23 @@ public class MainActivity extends Activity {
     public void startAddExpense(View view) {
         Intent intent = new Intent(this,AddExpenseActivity.class);
         startActivity(intent);
+
+    }
+
+    /**
+     * This method takes output of Api call and updates array of results.
+     * @see
+     * {@link com.vish.cloudexpense.GoogleApiFragment.ApiCallFinishListener#onApiCallFinishedGetResultArraylist(List)}
+     * @param output
+     */
+    @Override
+    public void onApiCallFinishedGetResultArraylist(List<String> output) {
+        //update arrayList in main activity
+        arrayList.clear();
+        arrayList.addAll(output);
+        //notify the ListView Adapter that data has changed.
+        Log.d(TAG, Arrays.toString((arrayList.toArray(new String[]{""}))));
+        arrayAdapter.notifyDataSetChanged();
 
     }
 }

@@ -1,6 +1,7 @@
 package com.vish.cloudexpense;
 
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -17,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.common.ConnectionResult;
@@ -50,7 +50,25 @@ import java.util.Map;
 public class GoogleApiFragment extends Fragment {
 
     /**
-     * List of supported Google API Methods.
+     * This allows the fragment to communicate with the activity.
+     *
+     * The container activity must implement this interface.
+     * Once the Google API Call is finished, this method is called.
+     */
+    public interface ApiCallFinishListener {
+        /**
+         * The container activity should implement this method.
+         * This method contains the logic for what to do with the output of
+         * The API Call.
+         * @param output a {@code List<String>} containing output of API call.
+         */
+        public void onApiCallFinishedGetResultArraylist(List<String> output);
+    }
+
+    ApiCallFinishListener mCallback;
+    /**
+     * List of supported Google API Methods. Each method
+     * is identified by a method name and method index.
      */
     public static enum apiMethods {
         ADD_EXPENSE("addExpense",0),
@@ -125,8 +143,9 @@ public class GoogleApiFragment extends Fragment {
                 .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
     }
 
+
     /**
-     * No UI for this Fragment.
+     * No UI for this Fragment. So we return null.
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -192,6 +211,21 @@ public class GoogleApiFragment extends Fragment {
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(TAG,"onAttach");
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (ApiCallFinishListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement ApiCallFinishListener");
+        }
     }
 
     @Override
@@ -449,18 +483,15 @@ public class GoogleApiFragment extends Fragment {
             mProgress.hide();
             if (output == null || output.size() == 0) {
                 Common.showSimpleDialog(getActivity(), "Response", "No results returned.");
+                mCallback.onApiCallFinishedGetResultArraylist(new ArrayList<String>());
             } else {
                 output.add(0, "Data retrieved using the Google Apps Script Execution API:");
                 Common.showSimpleDialog(getActivity(), "Response", TextUtils.join("\n", output));
 
-                //update arrayList in main activity
-                ((MainActivity) getActivity()).arrayList.clear();
-                ((MainActivity) getActivity()).arrayList.addAll(output);
-                //notify the ListView Adapter that data has changed.
-                Log.d(TAG, Arrays.toString((
-                        (MainActivity) getActivity())
-                        .arrayList.toArray(new String[]{""})));
-                ((MainActivity) getActivity()).arrayAdapter.notifyDataSetChanged();
+                //call the callback function which has been
+                //implemented in main activity.
+                mCallback.onApiCallFinishedGetResultArraylist(output);
+
             }
 
 

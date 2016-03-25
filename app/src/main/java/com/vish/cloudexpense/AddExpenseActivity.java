@@ -8,12 +8,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 
+import com.vish.cloudexpense.GoogleApiFragment.ApiCallFinishListener;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class AddExpenseActivity extends AppCompatActivity implements
-        DatePickerFragment.OnDateSelectedListener {
+        DatePickerFragment.OnDateSelectedListener, ApiCallFinishListener {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     private static final String TAG = "AddExpenseActivity";
@@ -52,6 +55,11 @@ public class AddExpenseActivity extends AppCompatActivity implements
         //set datepicker button text to chosen date.
         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
         datePickerButton.setText(chosenDate);
+
+    }
+
+    @Override
+    public void onApiCallFinishedGetResultArraylist(List<String> output) {
 
     }
 }
