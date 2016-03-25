@@ -110,7 +110,7 @@ public class GoogleApiFragment extends Fragment {
         return f;
     }
 
-    private static final String TAG = "GoogleApiFragment";
+    protected static final String TAG = "GoogleApiFragment";
     GoogleAccountCredential mCredential;
 
     ProgressDialog mProgress;
@@ -216,7 +216,7 @@ public class GoogleApiFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d(TAG,"onAttach");
+        Log.d(TAG, "onAttach");
 
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
@@ -226,6 +226,20 @@ public class GoogleApiFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement ApiCallFinishListener");
         }
+
+        if (mCredential == null) {
+            Log.e (TAG,"Google Account credentials are null!");
+        }
+    }
+
+    /**
+     * Called when Fragment is detached.
+     * TODO what's needed when Google Api Fragment is detached?
+     */
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach");
     }
 
     @Override

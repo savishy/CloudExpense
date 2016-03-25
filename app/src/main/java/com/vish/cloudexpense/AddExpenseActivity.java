@@ -1,6 +1,9 @@
 package com.vish.cloudexpense;
 
 import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,8 +21,9 @@ import java.util.List;
 public class AddExpenseActivity extends AppCompatActivity implements
         DatePickerFragment.OnDateSelectedListener, ApiCallFinishListener {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
     private static final String TAG = "AddExpenseActivity";
+    private FragmentTransaction fragmentTransaction;
+    private GoogleApiFragment googleApiFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +34,8 @@ public class AddExpenseActivity extends AppCompatActivity implements
         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
         datePickerButton.setText(sdf.format(new Date()));
 
+        FragmentManager fragmentManager = getFragmentManager();
+        googleApiFragment = fragmentManager.findFragmentByTag(GoogleApiFragment.TAG);
     }
 
     public void showDatePickerDialog(View v) {

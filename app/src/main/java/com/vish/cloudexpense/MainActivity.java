@@ -1,6 +1,7 @@
 package com.vish.cloudexpense;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -28,6 +29,8 @@ public class MainActivity extends Activity implements GoogleApiFragment.ApiCallF
 //    private TextView mOutputText;
     private ListView expenseCategories;
     protected ArrayAdapter<String> arrayAdapter;
+    private FragmentTransaction fragmentTransaction;
+    private GoogleApiFragment googleApiFragment;
     protected List<String> arrayList = new ArrayList<String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +53,7 @@ public class MainActivity extends Activity implements GoogleApiFragment.ApiCallF
 //        mOutputText.setMovementMethod(new ScrollingMovementMethod());
 //        activityLayout.addView(mOutputText);
 
-        Log.d(TAG,"onCreate");
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -64,10 +67,10 @@ public class MainActivity extends Activity implements GoogleApiFragment.ApiCallF
         expenseCategories.setAdapter(arrayAdapter);
 
         FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GoogleApiFragment googleApiFragment = GoogleApiFragment.newInstance
+        fragmentTransaction = fragmentManager.beginTransaction();
+        googleApiFragment = GoogleApiFragment.newInstance
                 (GoogleApiFragment.apiMethods.GET_EXPENSES_BY_CATEGORY);
-        fragmentTransaction.add(googleApiFragment,"GoogleApiFragment").commit();
+        fragmentTransaction.add(googleApiFragment,GoogleApiFragment.TAG).commit();
     }
 
 
@@ -92,6 +95,7 @@ public class MainActivity extends Activity implements GoogleApiFragment.ApiCallF
         //notify the ListView Adapter that data has changed.
         Log.d(TAG, Arrays.toString((arrayList.toArray(new String[]{""}))));
         arrayAdapter.notifyDataSetChanged();
+        fragmentTransaction.detach(googleApiFragment).commit();
 
     }
 }
